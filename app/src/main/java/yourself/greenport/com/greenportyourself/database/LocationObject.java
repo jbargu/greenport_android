@@ -10,6 +10,7 @@ public class LocationObject {
     public static final String COLUMN_TIMESTAMP = "timestamp";
     public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_LONGITUDE = "longitude";
+    public static final String COLUMN_TRAVEL_MODE = "travel_mode";
 
     private int id;
 
@@ -19,11 +20,14 @@ public class LocationObject {
 
     private double longitude;
 
-    public LocationObject(int id, long timestamp, double latitude, double longitude) {
+    private int travelMode;
+
+    public LocationObject(int id, long timestamp, double latitude, double longitude, int travelMode) {
         this.id = id;
         this.timestamp = timestamp;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.travelMode = travelMode;
     }
 
     public int getId() {
@@ -56,5 +60,13 @@ public class LocationObject {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getTravelMode() {
+        return travelMode;
+    }
+
+    public void setTravelMode(int travelMode) {
+        this.travelMode = travelMode;
     }
 }

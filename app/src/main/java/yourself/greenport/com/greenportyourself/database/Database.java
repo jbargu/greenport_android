@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class Database extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAMES = "location_data.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public Database(Context context) {
         super(context, DATABASE_NAMES, null, DATABASE_VERSION);
@@ -16,7 +16,7 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_LOCATIONS_TABLE = "CREATE    TABLE " + LocationObject.TABLE_NAME + "(" + LocationObject.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + LocationObject.COLUMN_TIMESTAMP + " INTEGER," + LocationObject.COLUMN_LATITUDE + " REAL, " + LocationObject.COLUMN_LONGITUDE + " REAL" + ")";
+        String CREATE_LOCATIONS_TABLE = "CREATE    TABLE " + LocationObject.TABLE_NAME + "(" + LocationObject.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + LocationObject.COLUMN_TIMESTAMP + " INTEGER," + LocationObject.COLUMN_LATITUDE + " REAL, " + LocationObject.COLUMN_LONGITUDE + " REAL, " +  LocationObject.COLUMN_TRAVEL_MODE + " INTEGER " + ")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
     }
 

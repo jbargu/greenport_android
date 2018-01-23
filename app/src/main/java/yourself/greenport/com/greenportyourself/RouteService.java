@@ -136,7 +136,7 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
             Log.d(TAG, "Latitude " + latitudeValue + " Longitude " + longitudeValue + " Travel mode: " + ActivityRecognizedService.getTravelMode());
 
             // insert values to local sqlite database
-            query.addNewLocationObject(System.currentTimeMillis(), latitudeValue, longitudeValue);
+            query.addNewLocationObject(System.currentTimeMillis(), latitudeValue, longitudeValue, ActivityRecognizedService.getTravelMode());
 
             // send local broadcast receiver to application components
             Intent localBroadcastIntent = new Intent(ACTION);
