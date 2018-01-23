@@ -1,7 +1,6 @@
 package yourself.greenport.com.greenportyourself;
 
 import android.Manifest;
-import android.app.IntentService;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -12,9 +11,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -23,16 +20,12 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.ActivityRecognitionResult;
-import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-
-import java.util.List;
 
 import yourself.greenport.com.greenportyourself.database.DatabaseQuery;
 import yourself.greenport.com.greenportyourself.helpers.CustomSharedPreference;
@@ -47,7 +40,6 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
     private double longitudeValue = 0.0;
     private CustomSharedPreference customSharedPreference;
     private DatabaseQuery query;
-    private long startTimeInMilliSeconds = 0L;
     private boolean isServiceRunning = false;
 
     @Override
@@ -55,8 +47,7 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
         super.onCreate();
         customSharedPreference = new CustomSharedPreference(getApplicationContext());
         if (isRouteTrackingOn()) {
-            startTimeInMilliSeconds = System.currentTimeMillis();
-            Log.d(TAG, "Current time " + startTimeInMilliSeconds);
+            Log.d(TAG, "Current time " + System.currentTimeMillis());
             Log.d(TAG, "Service is running");
         }
         query = new DatabaseQuery(getApplicationContext());
@@ -91,7 +82,7 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 2000, pendingIntent);
 
-        customSharedPreference.setServiceState(true);
+        customSharedPreference.setServiceRunningState(true);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
@@ -112,7 +103,7 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
                         }
                         break;
                     case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        Log.d("ehee", "ararara");
+                        Log.d(TAG, "Settings change unavailable.");
                         break;
                 }
             }
@@ -139,27 +130,20 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
     public void onLocationChanged(Location location) {
         Log.d(TAG, "Latitude " + location.getLatitude() + " Longitude " + location.getLongitude());
         Log.d(TAG, "SERVICE RUNNING " + isServiceRunning);
-        if (isRouteTrackingOn() && startTimeInMilliSeconds == 0) {
-            startTimeInMilliSeconds = System.currentTimeMillis();
-        }
-        if (isRouteTrackingOn() && startTimeInMilliSeconds > 0) {
+        if (isRouteTrackingOn()) {
             latitudeValue = location.getLatitude();
             longitudeValue = location.getLongitude();
-            Log.d(TAG, "Latitude " + latitudeValue + " Longitude " + longitudeValue);
+            Log.d(TAG, "Latitude " + latitudeValue + " Longitude " + longitudeValue + " Travel mode: " + ActivityRecognizedService.getTravelMode());
+
             // insert values to local sqlite database
             query.addNewLocationObject(System.currentTimeMillis(), latitudeValue, longitudeValue);
+
             // send local broadcast receiver to application components
             Intent localBroadcastIntent = new Intent(ACTION);
             localBroadcastIntent.putExtra("RESULT_CODE", "LOCAL");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localBroadcastIntent);
-            long timeoutTracking = 2 * 60 * 60 * 1000;
-            if (System.currentTimeMillis() >= startTimeInMilliSeconds + timeoutTracking) {
-                //turn of the tracking
-                customSharedPreference.setServiceState(false);
-                Log.d(TAG, "SERVICE HAS BEEN STOPPED");
-                this.stopSelf();
-            }
         }
+        // Check whether user requested service to be shutdown
         if (!isRouteTrackingOn()) {
             Log.d(TAG, "SERVICE HAS BEEN STOPPED 1");
             isServiceRunning = false;
@@ -167,13 +151,12 @@ public class RouteService extends Service implements GoogleApiClient.ConnectionC
 //            Intent dialogIntent = new Intent(this, RecordResultActivity.class);
 //            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //            this.startActivity(dialogIntent);
-//            this.stopSelf();
+            this.stopSelf();
         }
     }
 
     private boolean isRouteTrackingOn() {
-        Log.d(TAG, "SERVICE STATE " + customSharedPreference.getServiceState());
-        return customSharedPreference.getServiceState();
+        return customSharedPreference.isServiceRunningState();
     }
 
     @Override

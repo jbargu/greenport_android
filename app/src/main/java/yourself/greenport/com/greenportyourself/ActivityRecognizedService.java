@@ -3,8 +3,6 @@ package yourself.greenport.com.greenportyourself;
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -83,8 +81,10 @@ public class ActivityRecognizedService extends IntentService {
             }
 
             // Check for max confidence
-            if (activity.getConfidence() > maxConfidence)
+            if (activity.getConfidence() > maxConfidence) {
                 maxTravelMode = activity.getType();
+                maxConfidence = activity.getConfidence();
+            }
         }
 
         // Update current travel mode iff the max confidence exceeds

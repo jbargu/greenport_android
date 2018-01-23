@@ -42,6 +42,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import yourself.greenport.com.greenportyourself.database.DatabaseQuery;
 import yourself.greenport.com.greenportyourself.database.LocationObject;
+import yourself.greenport.com.greenportyourself.helpers.CustomSharedPreference;
 
 public class MapTrackingActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks{
     private static final String TAG = MapTrackingActivity.class.getSimpleName();
@@ -53,6 +54,7 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
     private GoogleMap mMap;
     private DatabaseQuery mQuery;
     private RouteBroadCastReceiver routeReceiver;
+    private CustomSharedPreference customSharedPreference;
     private List<LocationObject> startToPresentLocations;
 
     @Bind(R.id.start_tracking) Button startTracking;
@@ -62,6 +64,8 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_tracking);
         ButterKnife.bind(this);
+
+        customSharedPreference = new CustomSharedPreference(getApplicationContext());
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -72,28 +76,38 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         startToPresentLocations = mQuery.getAllLocationObjects();
         mLocationRequest = createLocationRequest();
         routeReceiver = new RouteBroadCastReceiver();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // Set click listener for Start/Stop tracking
         startTracking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("balbla", "eee");
-                startService(new Intent(MapTrackingActivity.this, RouteService.class));
-
+                if (customSharedPreference.isServiceRunningState()) {
+                    customSharedPreference.setServiceRunningState(false);
+                    startTracking.setText(R.string.start_tracking);
+                }
+                else {
+                    customSharedPreference.setServiceRunningState(true);
+                    startTracking.setText(R.string.stop_tracking);
+                    startService(new Intent(MapTrackingActivity.this, RouteService.class));
+                }
             }
         });
-        Log.d("ehee", mQuery.getAllLocationObjects() + "");
+
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
+
     private void markStartingLocationOnMap(GoogleMap mapObject, LatLng location){
         mapObject.addMarker(new MarkerOptions().position(location).title("Current location"));
         mapObject.moveCamera(CameraUpdateFactory.newLatLng(location));
     }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "Connection method has been called");
@@ -178,9 +192,11 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
                 .build();
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
+
     private void refreshMap(GoogleMap mapInstance){
         mapInstance.clear();
     }
+
     protected LocationRequest createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
@@ -188,6 +204,7 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         return mLocationRequest;
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -196,6 +213,11 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         }
         IntentFilter filter = new IntentFilter(RouteService.ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(routeReceiver, filter);
+
+        if (customSharedPreference.isServiceRunningState())
+            startTracking.setText(R.string.start_tracking);
+        else
+            startTracking.setText(R.string.stop_tracking);
     }
     @Override
     protected void onPause() {

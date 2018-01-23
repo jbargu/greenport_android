@@ -24,11 +24,11 @@ public class CustomSharedPreference {
         sharedPref = context.getSharedPreferences(Helper.PREFS_TAG, Context.MODE_PRIVATE);
         gson = new Gson();
     }
-    public void setServiceState(boolean state) {
+    public void setServiceRunningState(boolean state) {
         sharedPref.edit().putBoolean(Helper.SERVICE_STATE, state).apply();
     }
 
-    public boolean getServiceState() {
+    public boolean isServiceRunningState() {
         return sharedPref.getBoolean(Helper.SERVICE_STATE, false);
     }
 }

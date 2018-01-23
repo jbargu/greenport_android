@@ -23,11 +23,9 @@ public class DatabaseQuery extends DatabaseObject {
         if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(0);
-                System.out.println("Response number " + id);
                 long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"));
                 double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude"));
                 double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow("longitude"));
-                System.out.println("Response number " + latitude + ", " + longitude);
                 allLocations.add(new LocationObject(id, timestamp, latitude, longitude));
             } while (cursor.moveToNext());
         }

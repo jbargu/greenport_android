@@ -53,6 +53,7 @@
         <activity
             android:name=".MapTrackingActivity"
             android:label="@string/title_activity_maps"></activity>
+
         <service
             android:name=".RouteService"
             android:enabled="true"
