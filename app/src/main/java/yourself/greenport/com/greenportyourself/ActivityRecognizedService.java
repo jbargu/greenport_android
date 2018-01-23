@@ -13,10 +13,17 @@ import com.google.android.gms.location.DetectedActivity;
 import java.util.List;
 
 /**
+ * Service that recognizes the travel mode in which the user is currently in and saves it to globaly variable.
+ *
  * Created by Jure Grabnar <grabnar12@gmail.com> on 23.1.2018.
  */
 
 public class ActivityRecognizedService extends IntentService {
+
+    // Variable that holds the travel mode from the last update
+    private static int LATEST_TRAVEL_MODE;
+
+    private static final int THRESHOLD_CONFIDENCE = 75;
 
     public ActivityRecognizedService() {
         super("ActivityRecognizedService");
@@ -29,13 +36,16 @@ public class ActivityRecognizedService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.d("TAG", intent + "");
+        // Check whether this is an activity recognition event
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             handleDetectedActivities(result.getProbableActivities());
         }
     }
 
+    // Callback for activity recognition event
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
+        int maxConfidence = 0, maxTravelMode = 0;
         for (DetectedActivity activity : probableActivities) {
             switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {
@@ -64,13 +74,6 @@ public class ActivityRecognizedService extends IntentService {
                 }
                 case DetectedActivity.WALKING: {
                     Log.e("ActivityRecogition", "Walking: " + activity.getConfidence());
-                    if (activity.getConfidence() >= 75) {
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                        builder.setContentText("Are you walking?");
-                        builder.setSmallIcon(R.mipmap.ic_launcher);
-                        builder.setContentTitle(getString(R.string.app_name));
-                        NotificationManagerCompat.from(this).notify(0, builder.build());
-                    }
                     break;
                 }
                 case DetectedActivity.UNKNOWN: {
@@ -78,7 +81,20 @@ public class ActivityRecognizedService extends IntentService {
                     break;
                 }
             }
+
+            // Check for max confidence
+            if (activity.getConfidence() > maxConfidence)
+                maxTravelMode = activity.getType();
         }
+
+        // Update current travel mode iff the max confidence exceeds
+        if (maxConfidence >= THRESHOLD_CONFIDENCE)
+            LATEST_TRAVEL_MODE = maxTravelMode;
+    }
+
+    // Get the latest travel mode
+    public static int getTravelMode() {
+        return LATEST_TRAVEL_MODE;
     }
 }
 
