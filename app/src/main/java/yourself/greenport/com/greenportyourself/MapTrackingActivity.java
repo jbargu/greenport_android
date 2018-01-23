@@ -1,4 +1,5 @@
 package yourself.greenport.com.greenportyourself;
+
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ import yourself.greenport.com.greenportyourself.database.DatabaseQuery;
 import yourself.greenport.com.greenportyourself.database.LocationObject;
 import yourself.greenport.com.greenportyourself.helpers.CustomSharedPreference;
 
-public class MapTrackingActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks{
+public class MapTrackingActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
     private static final String TAG = MapTrackingActivity.class.getSimpleName();
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -57,7 +59,8 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
     private CustomSharedPreference customSharedPreference;
     private List<LocationObject> startToPresentLocations;
 
-    @Bind(R.id.start_tracking) Button startTracking;
+    @Bind(R.id.start_tracking)
+    Button startTracking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +91,7 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
                 if (customSharedPreference.isServiceRunningState()) {
                     customSharedPreference.setServiceRunningState(false);
                     startTracking.setText(R.string.start_tracking);
-                }
-                else {
+                } else {
                     customSharedPreference.setServiceRunningState(true);
                     startTracking.setText(R.string.stop_tracking);
                     startService(new Intent(MapTrackingActivity.this, RouteService.class));
@@ -98,12 +100,13 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         });
 
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
 
-    private void markStartingLocationOnMap(GoogleMap mapObject, LatLng location){
+    private void markStartingLocationOnMap(GoogleMap mapObject, LatLng location) {
         mapObject.addMarker(new MarkerOptions().position(location).title("Current location"));
         mapObject.moveCamera(CameraUpdateFactory.newLatLng(location));
     }
@@ -138,40 +141,74 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
             }
         });
     }
+
     @Override
     public void onConnectionSuspended(int i) {
     }
-    private class RouteBroadCastReceiver extends BroadcastReceiver{
+
+
+    // Receiver which triggers update of the route from the service
+    private class RouteBroadCastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String local = intent.getExtras().getString("RESULT_CODE");
             assert local != null;
-            if(local.equals("LOCAL")){
+            if (local.equals("LOCAL")) {
                 //get all data from database
                 startToPresentLocations = mQuery.getAllLocationObjects();
-                if(startToPresentLocations.size() > 0){
+                if (startToPresentLocations.size() > 0) {
                     //prepare map drawing.
                     List<LatLng> locationPoints = getPoints(startToPresentLocations);
                     refreshMap(mMap);
                     markStartingLocationOnMap(mMap, locationPoints.get(0));
                     drawRouteOnMap(mMap, locationPoints);
+
+                    Log.d(TAG, getDistance(locationPoints) + " DISTANCE");
                 }
             }
         }
     }
-    private List<LatLng> getPoints(List<LocationObject> mLocations){
+
+    private List<LatLng> getPoints(List<LocationObject> mLocations) {
         List<LatLng> points = new ArrayList<LatLng>();
-        for(LocationObject mLocation : mLocations){
+        for (LocationObject mLocation : mLocations) {
             points.add(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
         }
         return points;
     }
-    private void startPolyline(GoogleMap map, LatLng location){
-        if(map == null){
+
+    private double getDistance(List<LatLng> locations) {
+        if (locations.size() < 2)
+            return 0.;
+
+        float distance = 0;
+        for (int i = 1; i <  locations.size(); i++) {
+            LatLng fst = locations.get(i-1);
+            LatLng snd = locations.get(i);
+
+            float[] results = new float[1];
+
+            Location.distanceBetween(
+                    fst.latitude,
+                    fst.longitude,
+                    snd.latitude,
+                    snd.longitude,
+                    results
+            );
+
+            if (results[0] > 1.0)
+                distance += results[0];
+
+        }
+        return distance;
+    }
+
+    private void startPolyline(GoogleMap map, LatLng location) {
+        if (map == null) {
             Log.d(TAG, "Map object is not null");
             return;
         }
-        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.GREEN).geodesic(true);
         options.add(location);
         Polyline polyline = map.addPolyline(options);
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -180,8 +217,9 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
                 .build();
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
-    private void drawRouteOnMap(GoogleMap map, List<LatLng> positions){
-        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+
+    private void drawRouteOnMap(GoogleMap map, List<LatLng> positions) {
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.GREEN).geodesic(true);
         options.addAll(positions);
         Polyline polyline = map.addPolyline(options);
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -193,7 +231,7 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    private void refreshMap(GoogleMap mapInstance){
+    private void refreshMap(GoogleMap mapInstance) {
         mapInstance.clear();
     }
 
@@ -208,7 +246,7 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
     @Override
     protected void onResume() {
         super.onResume();
-        if(routeReceiver == null){
+        if (routeReceiver == null) {
             routeReceiver = new RouteBroadCastReceiver();
         }
         IntentFilter filter = new IntentFilter(RouteService.ACTION);
@@ -219,16 +257,19 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         else
             startTracking.setText(R.string.stop_tracking);
     }
+
     @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(routeReceiver);
     }
+
     @Override
     protected void onStart() {
         mGoogleApiClient.connect();
         super.onStart();
     }
+
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
