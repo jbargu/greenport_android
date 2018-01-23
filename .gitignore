@@ -34,3 +34,4 @@ proguard/
 .navigation/
 
 # Android Studio captures folder
+google_maps_api.xml

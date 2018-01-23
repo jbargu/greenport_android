@@ -12,3 +12,16 @@ Download
 
 3. Use either emulated device or a real device to run the code (USB debugging has to be enabled).
 
+4. Generate Google API key [here](https://developers.google.com/maps/documentation/javascript/get-api-key#step-1-get-an-api-key-from-the-google-api-console).
+
+5. Create file `src/debug/res/google_maps_api.xml` with the following content
+
+```xml
+<resources>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+         API_KEY
+    </string>
+</resources>
+```
+
+where API_KEY is the API key obtained in Step 4.

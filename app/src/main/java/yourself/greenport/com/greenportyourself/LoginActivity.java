@@ -30,6 +30,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
+        _emailText.setText("test@gmail.com");
+        _passwordText.setText("tralala");
+
+        onLoginSuccess();
+
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -54,6 +59,8 @@ public class LoginActivity extends AppCompatActivity {
     public void login() {
         Log.d(TAG, "Login");
 
+
+
         if (!validate()) {
             onLoginFailed();
             return;
@@ -71,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
 
         // TODO: Implement your own authentication logic here.
+
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -103,8 +111,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+
         _loginButton.setEnabled(true);
+        startActivityForResult(intent, REQUEST_SIGNUP);
         finish();
+        overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+//        finish();
     }
 
     public void onLoginFailed() {
