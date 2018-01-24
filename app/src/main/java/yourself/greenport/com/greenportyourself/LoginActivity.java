@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Map;
+
 import butterknife.ButterKnife;
 import butterknife.Bind;
 
@@ -33,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         _emailText.setText("test@gmail.com");
         _passwordText.setText("tralala");
 
-        onLoginSuccess();
+//        onLoginSuccess();
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -109,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
-        Intent intent = new Intent(getApplicationContext(), PlantingTreeActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MapTrackingActivity.class);
 
         _loginButton.setEnabled(true);
         startActivityForResult(intent, REQUEST_SIGNUP);

@@ -29,4 +29,4 @@ where API_KEY is the API key obtained in Step 4.
 Notes
 --------
 
-Carbon footprint is currently calculated based on foot movements instead of vehicle for demo purposes.
+Carbon footprint is currently calculated based on foot movements instead of vehicle for demo purposes and monthly report is hardcoded.

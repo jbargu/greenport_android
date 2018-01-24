@@ -48,6 +48,8 @@ public class PlantingTreeActivity extends AppCompatActivity implements GoogleApi
                         startActivity(intent);
                         return true;
                     case R.id.navigation_notifications:
+                        intent = new Intent(getApplicationContext(), MonthlyReportActivity.class);
+                        startActivity(intent);
                         return true;
                 }
                 return false;
@@ -85,7 +87,7 @@ public class PlantingTreeActivity extends AppCompatActivity implements GoogleApi
         LatLng location = new LatLng(46.877109, 9.836514);
 //        LatLng location = new LatLng(10, 10k);
         mMap.addMarker(new MarkerOptions().position(location).title("Planting trees tomorrow at 9AM")
-        .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_small)));
+        .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_small))).showInfoWindow();
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(location)
