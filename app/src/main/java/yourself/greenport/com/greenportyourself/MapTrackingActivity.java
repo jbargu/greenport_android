@@ -11,10 +11,12 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -62,6 +64,9 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
     @Bind(R.id.start_tracking)
     Button startTracking;
 
+    @Bind(R.id.navigation)
+    BottomNavigationView navigation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +104,25 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
             }
         });
 
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Intent intent;
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+                        intent = new Intent(getApplicationContext(), MapTrackingActivity.class);
+                        startActivity(intent);
+                        return true;
+                    case R.id.navigation_dashboard:
+                        intent = new Intent(getApplicationContext(), PlantingTreeActivity.class);
+                        startActivity(intent);
+                        return true;
+                    case R.id.navigation_notifications:
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -182,8 +206,8 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
             return 0.;
 
         float distance = 0;
-        for (int i = 1; i <  locations.size(); i++) {
-            LatLng fst = locations.get(i-1);
+        for (int i = 1; i < locations.size(); i++) {
+            LatLng fst = locations.get(i - 1);
             LatLng snd = locations.get(i);
 
             float[] results = new float[1];
