@@ -32,7 +32,7 @@
     <string name="planting_tree_title">Planting trees</string>
     <string name="tokens">needed to absorb your CO2</string>
     <string name="trees">Join planting trees events and decrease your TREE tokens!</string>
-    <string name="monthly">Congratulations your score is under the average. You\'ve reduced your tokens by 30.\n You\   've reduced your carbon footprint from the previous month and earned extra minus 20 TREEs.</string>
+    <string name="monthly">Congratulations your score is under the average. You\'ve reduced your tokens by 30.\n You\'ve reduced your carbon footprint from the previous month and earned extra minus 20 TREEs.</string>
 
     <string name="title_activity_planting_screen">PlantingScreenActivity</string>
 </resources>
