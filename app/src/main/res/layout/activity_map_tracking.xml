@@ -8,11 +8,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:src="@drawable/title"
+        />
+
+
     <FrameLayout
-                 android:layout_width="match_parent"
-                 android:layout_height="0dp"
-                 android:layout_weight="1"
-                 >
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="12"
+        >
 
         <fragment
             xmlns:tools="http://schemas.android.com/tools"
@@ -23,21 +31,53 @@
             android:layout_gravity="center"
             tools:context=".MainActivity"/>
 
-        <Button
-            android:id="@+id/start_tracking"
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9"
+        android:padding="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/trees"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="40dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:background="@color/primary_dark"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/start_tracking"
-            android:textColor="@color/white"/>
+            android:text="@string/tokens"
+            android:textStyle="bold"
+            android:textSize="32dp"
+            android:layout_marginTop="10dp"
+            android:textAlignment="center"
+            />
 
-    </FrameLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tokens"
+            android:textStyle="bold"
+            android:textSize="22dp"
+            android:layout_marginTop="10dp"
+            android:textAlignment="center"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="22sp"
+            android:textAlignment="center"
+            android:text="Improve your score!"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="14sp"
+            android:textAlignment="center"
+            android:text="✔ Walk to your job once a week\n\nDo the grocery in the local shop."/>
+
+    </LinearLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"

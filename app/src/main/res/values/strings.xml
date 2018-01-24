@@ -29,6 +29,9 @@
     <string name="title_dashboard">Planting trees</string>
     <string name="title_notifications">Monthly report</string>
     <string name="planting_tree_content">This month you need 42 young trees to absorb your commuting emissions. Join planting trees event every first Sunday in a month. Secret location will be announced on Sunday morning only to the random community members with improved scores.</string>
+    <string name="planting_tree_title">Planting trees</string>
+    <string name="tokens">needed to absorb your CO2</string>
+    <string name="trees">Join planting trees events and decrease your TREE tokens!</string>
 
     <string name="title_activity_planting_screen">PlantingScreenActivity</string>
 </resources>

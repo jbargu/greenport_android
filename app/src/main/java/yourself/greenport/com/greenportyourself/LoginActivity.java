@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
-        Intent intent = new Intent(getApplicationContext(), MapTrackingActivity.class);
+        Intent intent = new Intent(getApplicationContext(), PlantingTreeActivity.class);
 
         _loginButton.setEnabled(true);
         startActivityForResult(intent, REQUEST_SIGNUP);

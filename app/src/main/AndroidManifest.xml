@@ -27,7 +27,9 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.Dark">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Dark"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -51,7 +53,8 @@
 
         <activity
             android:name=".MapTrackingActivity"
-            android:label="@string/title_activity_maps"/>
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".RouteService"
@@ -63,7 +66,8 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main">
         </activity>
-        <activity android:name=".PlantingTreeActivity">
+        <activity android:name=".PlantingTreeActivity"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

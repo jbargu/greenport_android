@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -51,21 +52,24 @@ import yourself.greenport.com.greenportyourself.helpers.CustomSharedPreference;
 public class MapTrackingActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
     private static final String TAG = MapTrackingActivity.class.getSimpleName();
     private GoogleApiClient mGoogleApiClient;
+    private GoogleMap mMap;
+
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private double latitudeValue = 0.0;
     private double longitudeValue = 0.0;
-    private GoogleMap mMap;
+
     private DatabaseQuery mQuery;
     private RouteBroadCastReceiver routeReceiver;
+
     private CustomSharedPreference customSharedPreference;
     private List<LocationObject> startToPresentLocations;
 
-    @Bind(R.id.start_tracking)
-    Button startTracking;
-
     @Bind(R.id.navigation)
     BottomNavigationView navigation;
+
+    @Bind(R.id.trees)
+    TextView treesTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,21 +93,6 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Set click listener for Start/Stop tracking
-        startTracking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (customSharedPreference.isServiceRunningState()) {
-                    customSharedPreference.setServiceRunningState(false);
-                    startTracking.setText(R.string.start_tracking);
-                } else {
-                    customSharedPreference.setServiceRunningState(true);
-                    startTracking.setText(R.string.stop_tracking);
-                    startService(new Intent(MapTrackingActivity.this, RouteService.class));
-                }
-            }
-        });
-
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -123,6 +112,9 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
                 return false;
             }
         });
+
+        // Start background service
+        startService(new Intent(MapTrackingActivity.this, RouteService.class));
     }
 
     @Override
@@ -158,6 +150,16 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
                                 startPolyline(mMap, new LatLng(latitudeValue, longitudeValue));
                             }
                         }
+                        else {
+                            int returnResult = 0;
+                            ActivityCompat.requestPermissions(MapTrackingActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    returnResult);
+
+                            ActivityCompat.requestPermissions(MapTrackingActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                    returnResult);
+                        }
                         break;
                     case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                         break;
@@ -187,7 +189,7 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
                     markStartingLocationOnMap(mMap, locationPoints.get(0));
                     drawRouteOnMap(mMap, locationPoints);
 
-                    Log.d(TAG, getDistance(locationPoints) + " DISTANCE");
+                    treesTV.setText(String.format("%.3f TREE", getDistance(startToPresentLocations) * 0.001));
                 }
             }
         }
@@ -201,32 +203,34 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         return points;
     }
 
-    private double getDistance(List<LatLng> locations) {
+    private double getDistance(List<LocationObject> locations) {
         if (locations.size() < 2)
             return 0.;
 
         float distance = 0;
         for (int i = 1; i < locations.size(); i++) {
-            LatLng fst = locations.get(i - 1);
-            LatLng snd = locations.get(i);
-
             float[] results = new float[1];
 
             Location.distanceBetween(
-                    fst.latitude,
-                    fst.longitude,
-                    snd.latitude,
-                    snd.longitude,
+                    locations.get(i - 1).getLatitude(),
+                    locations.get(i - 1).getLongitude(),
+                    locations.get(i).getLatitude(),
+                    locations.get(i).getLongitude(),
                     results
             );
 
-            if (results[0] > 1.0)
+            if (locations.get(i).getTravelMode() != 4 && results[0] > 1.0)
                 distance += results[0];
 
         }
         return distance;
     }
 
+    /**
+     *
+     * @param map
+     * @param location
+     */
     private void startPolyline(GoogleMap map, LatLng location) {
         if (map == null) {
             Log.d(TAG, "Map object is not null");
@@ -275,11 +279,6 @@ public class MapTrackingActivity extends FragmentActivity implements OnMapReadyC
         }
         IntentFilter filter = new IntentFilter(RouteService.ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(routeReceiver, filter);
-
-        if (customSharedPreference.isServiceRunningState())
-            startTracking.setText(R.string.start_tracking);
-        else
-            startTracking.setText(R.string.stop_tracking);
     }
 
     @Override
